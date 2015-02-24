@@ -1,48 +1,45 @@
 package io.github.omgimanerd.precisitool;
 
 import android.app.Activity;
-import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-
+import android.util.Log;
 
 public class MainActivity extends Activity implements SensorEventListener {
 
-  private SensorManager sensorManager_;
-  private Sensor sensor_;
-
-  MainView mainView_;
+  private PrecisiToolView precisiToolView_;
+  private SensorManager sManager;
 
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-    sensorManager_ = (SensorManager) getSystemService(
-        Context.SENSOR_SERVICE);
-    sensor_ = sensorManager_.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
-    mainView_ = new MainView(this);
-    setContentView(mainView_);
+    precisiToolView_ = new PrecisiToolView(this);
+    setContentView(precisiToolView_);
   }
 
-
+  @Override
   protected void onResume() {
     super.onResume();
-    sensorManager_.registerListener(this, sensor_,
-                        SensorManager.SENSOR_DELAY_NORMAL);
+    sManager.registerListener(this, sManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+                              SensorManager.SENSOR_DELAY_FASTEST);
   }
 
-  protected void onPause() {
-    super.onPause();
-    sensorManager_.unregisterListener(this);
+  @Override
+  protected void onStop() {
+    sManager.unregisterListener(this);
+    super.onStop();
   }
 
-  public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+  @Override
+  public void onAccuracyChanged(Sensor arg0, int arg1) {}
 
+  @Override
   public void onSensorChanged(SensorEvent event) {
-    mainView_.update(event);
+    precisiToolView_.updateRawOrientationValues(event.values);
   }
 }
