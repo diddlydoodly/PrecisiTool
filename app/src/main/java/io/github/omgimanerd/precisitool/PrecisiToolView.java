@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
+import android.graphics.Path;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -13,8 +13,14 @@ import android.view.View;
  */
 public class PrecisiToolView extends View {
 
-  private static final int PRECISITOOL_BALL_COLOR = Color.RED;
-  private static final int PRECISITOOL_BALL_SIZE = 40;
+  private static final int BALL_COLOR = Color.RED;
+  private static final int BALL_RADIUS = 40;
+  private static final int CENTER_INDICATOR_COLOR = Color.YELLOW;
+  private static final int CENTER_INDICATOR_STROKE = 5;
+  private static final int CENTER_INDICATOR_RADIUS = 50;
+  
+  private static final int ANGLE_INDICATOR_OFFSET = 20;
+  
   private static final float SENSITIVITY = 8;
 
   private float[] rawOrientationValues_;
@@ -22,7 +28,9 @@ public class PrecisiToolView extends View {
   private float screenWidth_;
   private float screenHeight_;
 
-  Paint precisiToolBallPaint_;
+  private Paint precisiToolIndicatorPaint_;
+  private Paint precisiToolBallPaint_;
+  private Paint textPaint_;
 
   public PrecisiToolView (Context context) {
     super(context);
@@ -33,7 +41,19 @@ public class PrecisiToolView extends View {
     screenHeight_ = getResources().getDisplayMetrics().heightPixels;
 
     precisiToolBallPaint_ = new Paint();
-    precisiToolBallPaint_.setColor(PRECISITOOL_BALL_COLOR);
+    precisiToolBallPaint_.setColor(BALL_COLOR);
+
+    precisiToolIndicatorPaint_ = new Paint();
+    precisiToolIndicatorPaint_.setStyle(Paint.Style.STROKE);
+    precisiToolIndicatorPaint_.setStrokeWidth
+        (CENTER_INDICATOR_STROKE);
+    precisiToolIndicatorPaint_.setColor(CENTER_INDICATOR_COLOR);
+
+    textPaint_ = new Paint();
+    textPaint_.setColor(Color.BLACK);
+    textPaint_.setTextSize(getResources().getDimensionPixelSize(
+        R.dimen.text_size));
+    textPaint_.setTextAlign(Paint.Align.CENTER);
   }
 
   public void updateRawOrientationValues(float[] rawOrientationValues) {
@@ -54,10 +74,28 @@ public class PrecisiToolView extends View {
     float centerX = screenWidth_ / 2;
     float centerY = screenHeight_ / 2;
 
+    canvas.drawCircle(centerX, centerY, CENTER_INDICATOR_RADIUS,
+                      precisiToolIndicatorPaint_);
     canvas.drawCircle(centerX + deviations[2] * SENSITIVITY,
                       centerY + deviations[1] * SENSITIVITY,
-                      PRECISITOOL_BALL_SIZE,
-                      precisiToolBallPaint_);
+                      BALL_RADIUS, precisiToolBallPaint_);
+
+    String calibrateString = getResources().getString(R.string.recalibrate);
+    canvas.drawText(calibrateString, centerX, centerY, textPaint_);
+
+    String xAngleText = getResources().getString(R.string.angular_difference)
+        + " " + (int) deviations[2];
+    String yAngleText = getResources().getString(R.string.angular_difference)
+        + " " + (int) deviations[1];
+
+    Path yAngleTextPath = new Path();
+    yAngleTextPath.moveTo(centerX, centerY);
+    yAngleTextPath.lineTo(centerX, 0);
+
+    canvas.drawText(xAngleText, centerX, 3 * screenHeight_ / 4,
+                    textPaint_);
+    canvas.drawTextOnPath(yAngleText, yAngleTextPath, ANGLE_INDICATOR_OFFSET,
+                          0, textPaint_);
 
     invalidate();
   }
