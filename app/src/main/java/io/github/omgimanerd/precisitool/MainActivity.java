@@ -15,17 +15,19 @@ public class MainActivity extends Activity implements SensorEventListener {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+    setContentView(R.layout.main_layout);
 
-    precisiToolView_ = new PrecisiToolView(this);
-    setContentView(precisiToolView_);
+    precisiToolView_ = (PrecisiToolView) findViewById(R.id.precisitoolView);
+    sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
   }
 
   @Override
   protected void onResume() {
+    sManager.registerListener(
+        this,
+        sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+        SensorManager.SENSOR_DELAY_FASTEST);
     super.onResume();
-    sManager.registerListener(this, sManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
-                              SensorManager.SENSOR_DELAY_FASTEST);
   }
 
   @Override
@@ -39,6 +41,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 
   @Override
   public void onSensorChanged(SensorEvent event) {
-    precisiToolView_.updateRawOrientationValues(event.values);
+    if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+      precisiToolView_.updateRawOrientationValues(event.values);
+    }
   }
 }

@@ -3,7 +3,7 @@
 
     <string name="app_name">PrecisiTool</string>
     <string name="action_settings">Settings</string>
-    <string name="recalibrate">Tap screen to recalibrate</string>
+    <string name="recalibrate">Recalibrate</string>
     <string name="angular_difference">Angular Deviation:</string>
 
 </resources>
