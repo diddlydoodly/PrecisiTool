@@ -31,9 +31,9 @@ public class MainActivity extends Activity implements SensorEventListener {
   }
 
   @Override
-  protected void onStop() {
+  protected void onPause() {
     sManager.unregisterListener(this);
-    super.onStop();
+    super.onPause();
   }
 
   @Override
